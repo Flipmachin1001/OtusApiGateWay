@@ -1,0 +1,38 @@
+usersservice:
+  image:
+    repository: flipmachin1001/usersservice
+    tag: v10
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+  replicaCount: 1
+
+authservice:
+  image:
+    repository: flipmachin1001/jwtauthservice
+    tag: v4
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+  replicaCount: 1
+
+postgresql:
+  enabled: true
+  postgresqlUsername: myuser
+  postgresqlPassword: passwd
+  authDbName: authdb
+  usersDbName: usersdb
+  service:
+    port: "5432"
+  
+ingress:
+    enabled: true
+    host: arch.homework
+
+serviceAccount:
+    create: false
+
+autoscaling:
+    enabled: false
