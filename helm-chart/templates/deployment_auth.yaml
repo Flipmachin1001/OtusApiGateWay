@@ -1,0 +1,64 @@
+#Сервис авторизации
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authservice-deployment
+  labels:
+    app: authservice
+spec:
+  replicas: {{ .Values.authservice.replicaCount }}   
+  selector:
+    matchLabels:
+      app: authservice
+  template:
+    metadata:
+      labels:
+        app: authservice
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: authservice
+          image: "{{ .Values.authservice.image.repository }}:{{ .Values.authservice.image.tag | default .Chart.AppVersion }}"
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /hc
+              port: 8000
+          readinessProbe:
+            httpGet:
+              path: /hc
+              port: 8000
+          env:
+          - name: AUTHDB_URI
+            valueFrom:
+              secretKeyRef:
+                name: auth-db-secret
+                key: AUTHDB_URI
+          - name: JWT_Key
+            valueFrom:
+              secretKeyRef:
+                name: jwt-secret
+                key: JWT_Key
+          - name: JWT_Issuer
+            valueFrom:
+              secretKeyRef:
+                name: jwt-secret
+                key: JWT_Issuer
+          - name: JWT_Audience
+            valueFrom:
+              secretKeyRef:
+                name: jwt-secret
+                key: JWT_Audience
+          volumeMounts:
+          - name: configmap-volume
+            mountPath: "/app/appsettings.json"
+            subPath: appsettings.json
+            readOnly: true
+      volumes:
+      - name: configmap-volume
+        configMap:
+          name: api-configmap

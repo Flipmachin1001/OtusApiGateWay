@@ -1,0 +1,64 @@
+#Пользователи
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: usersservice-deployment
+  labels:
+    app: usersservice
+spec:
+  replicas: {{ .Values.usersservice.replicaCount }}   
+  selector:
+    matchLabels:
+      app: usersservice
+  template:
+    metadata:
+      labels:
+        app: usersservice
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: userservice
+          image: "{{ .Values.usersservice.image.repository }}:{{ .Values.usersservice.image.tag | default .Chart.AppVersion }}"
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /hc
+              port: 8000
+          readinessProbe:
+            httpGet:
+              path: /hc
+              port: 8000
+          env:
+          - name: DATABASE_URI
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: DATABASE_URI
+          - name: JWT_Key
+            valueFrom:
+              secretKeyRef:
+                name: jwt-secret
+                key: JWT_Key
+          - name: JWT_Issuer
+            valueFrom:
+              secretKeyRef:
+                name: jwt-secret
+                key: JWT_Issuer
+          - name: JWT_Audience
+            valueFrom:
+              secretKeyRef:
+                name: jwt-secret
+                key: JWT_Audience
+          volumeMounts:
+          - name: configmap-volume
+            mountPath: "/app/appsettings.json"
+            subPath: appsettings.json
+            readOnly: true
+      volumes:
+      - name: configmap-volume
+        configMap:
+          name: api-configmap

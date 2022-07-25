@@ -1,0 +1,30 @@
+#Пользователи
+apiVersion: v1
+kind: Service
+metadata:
+  name: usersservice-service
+spec:
+  type: {{ .Values.usersservice.service.type }}
+  ports:
+     - name: http
+       port: {{ .Values.usersservice.service.port }}
+       protocol: TCP
+       targetPort: {{ .Values.usersservice.service.targetPort }}
+  selector:
+    app: usersservice
+---
+#Авторизация
+apiVersion: v1
+kind: Service
+metadata:
+  name: authservice-service
+spec:
+  type: {{ .Values.authservice.service.type }}
+  ports:
+     - name: http
+       port: {{ .Values.authservice.service.port }}
+       protocol: TCP
+       targetPort: {{ .Values.authservice.service.targetPort }}
+  selector:
+    app: authservice
+---

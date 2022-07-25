@@ -1,0 +1,28 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "apigateway.fullname" . -}}
+{{- $usersSvcPort := .Values.usersservice.service.port -}}
+{{- $authSvcPort := .Values.authservice.service.port -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: auth-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+        - path: /login(/|$)(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: authservice-service
+              port:
+                number: {{$authSvcPort}} 
+{{- end }}
