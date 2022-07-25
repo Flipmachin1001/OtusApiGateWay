@@ -1,4 +1,4 @@
-# OtusApiGateWay
+# API Gateway + JWT
 Домашнее задание API Gateway
 ![image](https://user-images.githubusercontent.com/60660331/180840737-a3e03752-b02c-46a6-8e76-aad01b8d938f.png)
 
