@@ -10,8 +10,20 @@
 5. Сервис управления профилями валидирует токен. Если токен не валидный, то возвращается ошибка Unauthorized.
 6. После валидации токена на основе полезной нагрузки проверяется имеет ли доступ клиент к ресурсу. Если идентификатор пользователя из полезной нагрузки токена не совпадает с идентификатором учетной записи, то возвращается ошибка Unauthorized.
 
-Инструкция по установке:
+**Инструкция по установке**
 1. Поставить NGINX ингресс через helm, если не установлен
 ```
 helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace --set controller.admissionWebhooks.enabled=false
+```
+2. Развернуть сервисы через helm
+```
+helm install openapi ./helm-chart
+```
+3. Протестировать работоспособность с помощью newman:
+```
+newman run ApiGateway.postman_collection.json
+```
+4. Удаление сервисов
+```
+helm uninstall openapi
 ```
